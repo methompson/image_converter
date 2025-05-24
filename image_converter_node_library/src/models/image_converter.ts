@@ -1,4 +1,4 @@
-import { process_image } from '../image_converter_binary/image_converter_back_end';
+import { process_image } from '@image_converter/image_converter_back_end';
 import {
   AbstractImageConverter,
   ImageConverterInput,

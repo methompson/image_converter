@@ -1,4 +1,4 @@
-export { ImageConverter } from './models/image_converter';
+export { ImageConverter } from '@/models/image_converter';
 
 export {
   JpegCompressionOptions,
@@ -21,6 +21,6 @@ export {
   ImageResizeDimensionOptions,
 } from '@common/models/resize_options';
 
-export { getJpegConverter } from './convenience/jpg_converter';
+export { getJpegConverter } from '@/convenience/jpg_converter';
 
-export { getPngConverter } from './convenience/png_converter';
+export { getPngConverter } from '@/convenience/png_converter';

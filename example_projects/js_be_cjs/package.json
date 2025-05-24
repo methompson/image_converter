@@ -10,8 +10,6 @@
   "description": "",
   "dependencies": {
     "@metools/node-image-converter": "^1.0.3",
-    "i": "^0.3.7",
-    "image_converter": "file:../../image_converter_node_library/",
-    "npm": "^11.4.1"
+    "image_converter": "file:../../image_converter_node_library/"
   }
 }

@@ -2,7 +2,12 @@ const {
   ImageConverter,
   JpegCompressionOptions,
   ImageResizeLongestSideOptions,
-} = require("@metools/node-image-converter");
+} = require("image_converter");
+// const {
+//   ImageConverter,
+//   JpegCompressionOptions,
+//   ImageResizeLongestSideOptions,
+// } = require("@metools/node-image-converter");
 
 async function main() {
   // console.log("Running stream_in.js");

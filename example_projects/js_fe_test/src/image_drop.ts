@@ -114,4 +114,6 @@ function makeFileFromBytes(bytesArray: Uint8Array) {
   downloadEl.click();
 
   document.body.removeChild(downloadEl);
+
+  URL.revokeObjectURL(blobUrl);
 }

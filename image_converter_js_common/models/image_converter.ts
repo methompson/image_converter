@@ -37,5 +37,7 @@ export abstract class AbstractImageConverter {
     return options;
   }
 
-  abstract convertImageBytes(bytes: Uint8Array): Promise<Uint8Array>;
+  abstract convertImageBytes(
+    bytes: Uint8Array
+  ): Promise<Uint8Array<ArrayBuffer>>;
 }

@@ -45,7 +45,7 @@ WebAssembly is still not a first class citizen among all bundlers and dev server
 
 ### Vite
 
-When bundling this app with Vite, you will need to prevent the package from being optimized using the `optimizeDeps.exclude` API:
+When bundling an app with Vite, you will need to prevent the package from being optimized using the `optimizeDeps.exclude` API:
 
 ```ts
 import { defineConfig } from "vite";
@@ -55,6 +55,10 @@ export default defineConfig({
   },
 });
 ```
+
+### tsup
+
+When bundling an app with tsup, it doesn't automatically copy any wasm files into the dist folder. The expectation of a Node back end project is that you will be operating the application with a `node_modules` folder, which allows you to access the `@metools/node-image-converter` project directly, along with the APIs to interact with the converter. If the intention of the project is to bundle all dependencies into a single JS file (e.g. a single file script that is meant to be run like a CLI tool), you will likely need to use a combination of `noExternal` in tsup's `defineConfig` API and converting the wasm binary into a base64 string that can be embedded into the project.
 
 ## Usage
 

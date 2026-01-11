@@ -17,3 +17,5 @@ eslint.config.mjs
 jest.config.js
 tsconfig.json
 tsup.config.ts
+
+publish.sh

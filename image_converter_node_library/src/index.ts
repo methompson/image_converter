@@ -1,6 +1,7 @@
 export { ImageConverter } from '@/models/image_converter';
 
 export {
+  ImageCompressionOptions,
   JpegCompressionOptions,
   PngCompressionOptions,
   GifCompressionOptions,
@@ -10,12 +11,14 @@ export {
 } from '@common/models/compression_options';
 
 export {
+  ImageCropOptions,
   ImageCropDimensionOptions,
   ImageCropAspectRatioOptions,
   ImageCropEachSideOptions,
 } from '@common/models/crop_options';
 
 export {
+  ImpageResizeOptions,
   ImageResizeAspectRatioOptions,
   ImageResizeLongestSideOptions,
   ImageResizeDimensionOptions,

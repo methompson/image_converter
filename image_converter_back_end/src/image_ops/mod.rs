@@ -5,14 +5,14 @@ pub mod resize;
 use compress::{default_compression_options, parse_compression_options, CompressionOptions};
 use crop::{parse_crop_options, CropOptions};
 use resize::{parse_resize_options, ResizeOptions};
-use serde::{Deserialize, Serialize};
+// use serde::{Deserialize, Serialize};
 use wasm_bindgen::JsValue;
 
-#[derive(Serialize, Deserialize)]
-enum StringOrNumber {
-    String(String),
-    Number(u32),
-}
+// #[derive(Serialize, Deserialize)]
+// enum StringOrNumber {
+//     String(String),
+//     Number(u32),
+// }
 
 pub struct ImageOperationOptions {
     pub crop_options: Option<CropOptions>,

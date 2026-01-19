@@ -84,7 +84,7 @@ pub fn parse_compression_options(input: JsValue) -> CompressionOptions {
     }
 }
 
-pub fn write_image(image: &DynamicImage, opts: CompressionOptions) -> Vec<u8> {
+pub fn write_image(image: &DynamicImage, opts: &CompressionOptions) -> Vec<u8> {
     let mut dat: Vec<u8> = Vec::new();
 
     match opts.format {

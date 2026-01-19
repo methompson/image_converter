@@ -3,11 +3,6 @@ import {
   ImageResizeLongestSideOptions,
   JpegCompressionOptions,
 } from "image_converter";
-// import {
-//   ImageConverter,
-//   ImageResizeLongestSideOptions,
-//   JpegCompressionOptions,
-// } from "@metools/web-image-converter";
 
 onmessage = async (e: MessageEvent) => {
   console.log("Worker received message:", e);

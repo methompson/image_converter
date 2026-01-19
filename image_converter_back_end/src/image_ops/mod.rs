@@ -18,6 +18,7 @@ pub struct ImageOperationOptions {
     pub crop_options: Option<CropOptions>,
     pub resize_options: Option<ResizeOptions>,
     pub compression_options: CompressionOptions,
+    pub exif_data: Option<Vec<u8>>,
 }
 
 pub fn parse_image_options(input: JsValue) -> ImageOperationOptions {
@@ -26,6 +27,7 @@ pub fn parse_image_options(input: JsValue) -> ImageOperationOptions {
             crop_options: None,
             resize_options: None,
             compression_options: default_compression_options(),
+            exif_data: None,
         };
     }
 
@@ -40,9 +42,13 @@ pub fn parse_image_options(input: JsValue) -> ImageOperationOptions {
         js_sys::Reflect::get(&input, &JsValue::from_str("compressionOptions")).unwrap();
     let compression_options = parse_compression_options(compression_options_raw);
 
+    let exif_options_raw = js_sys::Reflect::get(&input, &JsValue::from_str("exifData")).unwrap();
+    let exif_options: Option<Vec<u8>> = serde_wasm_bindgen::from_value(exif_options_raw).ok();
+
     ImageOperationOptions {
         crop_options: crop_options,
         resize_options: resize_options,
         compression_options: compression_options,
+        exif_data: exif_options,
     }
 }

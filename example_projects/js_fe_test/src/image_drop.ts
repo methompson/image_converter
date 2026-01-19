@@ -56,7 +56,7 @@ async function readFileAsBytes(file: File) {
   // const uint8Arr = new Uint8Array(buf);
 
   try {
-    const result = await sendToWorker(file);
+    const result = (await sendToWorker(file)) as Uint8Array<ArrayBuffer>;
 
     makeFileFromBytes(result);
   } catch (e) {
@@ -96,7 +96,7 @@ async function readFileAsBytes(file: File) {
 //   heifModule.free();
 // }
 
-function makeFileFromBytes(bytesArray: Uint8Array) {
+function makeFileFromBytes(bytesArray: Uint8Array<ArrayBuffer>) {
   console.log("Making File", bytesArray.length);
   // const b64encoded = arrayBufferToBase64(bytesArray);
   const blob = new Blob([bytesArray]);

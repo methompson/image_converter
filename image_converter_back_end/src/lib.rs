@@ -1,15 +1,19 @@
+mod exif_ops;
 mod image_ops;
 mod read_image;
 
 use std::io::Cursor;
 
 use image::DynamicImage;
+use js_sys::Uint8Array;
+use wasm_bindgen::prelude::*;
+
+use exif_ops::{read_image_exif, write_image_exif};
+
 use image_ops::{
     compress::write_image, crop::crop_image, parse_image_options, resize::resize_image,
 };
-use js_sys::Uint8Array;
 use read_image::read_image_bytes;
-use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen]
 extern "C" {
@@ -45,7 +49,19 @@ pub fn process_image(bytes: &[u8], input: JsValue) -> Uint8Array {
         None => cropped_image,
     };
 
-    let result = write_image(&resized_image, image_ops.compression_options);
+    let image = write_image(&resized_image, image_ops.compression_options);
+
+    let final_image: Vec<u8> = match &image_ops.exif_data {
+        Some(exif_data) => write_image_exif(image, exif_data),
+        None => image,
+    };
+
+    return Uint8Array::from(final_image.as_slice());
+}
+
+#[wasm_bindgen]
+pub fn get_image_exif_data(bytes: &[u8]) -> Uint8Array {
+    let result = read_image_exif(bytes);
 
     return Uint8Array::from(result.as_slice());
 }

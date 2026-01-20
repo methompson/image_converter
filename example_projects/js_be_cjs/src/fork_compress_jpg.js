@@ -60,7 +60,7 @@ function newName(oldName) {
   }
 
   const name = split.slice(0, -1).join(".");
-  const ext = split.slice(-1).join(".");
+  const ext = "jpg";
 
   return `${name}_resized.${ext}`;
 }

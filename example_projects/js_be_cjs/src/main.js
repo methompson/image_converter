@@ -2,7 +2,7 @@ const { fork } = require("node:child_process");
 const { TextDecoder } = require("node:util");
 const { isObject, isArrayOf, isNumber } = require("@metools/tcheck");
 
-const imgName = "IMG_3796.JPG";
+const imgName = "img.jpg";
 
 main();
 async function main() {
@@ -66,7 +66,9 @@ async function getImageExifData() {
 async function compressImage(exifData) {
   return new Promise(async (resolve, reject) => {
     try {
-      const imgExec = fork("./src/fork_compress.js", [], {});
+      const imgExec = fork("./src/fork_compress_tiff.js", [], {});
+      // const imgExec = fork("./src/fork_compress_png.js", [], {});
+      // const imgExec = fork("./src/fork_compress_jpg.js", [], {});
 
       const err = (err) => {
         const dat = new TextDecoder().decode(err);

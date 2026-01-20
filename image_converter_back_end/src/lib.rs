@@ -8,13 +8,12 @@ use image::DynamicImage;
 use js_sys::Uint8Array;
 use wasm_bindgen::prelude::*;
 
-use exif_ops::{read_image_exif, write_jpeg_exif};
-
 use image_ops::{
-    compress::write_image, compress::ImageType, crop::crop_image, parse_image_options,
-    resize::resize_image,
+    compress::write_image, crop::crop_image, parse_image_options, resize::resize_image,
 };
 use read_image::read_image_bytes;
+
+use crate::exif_ops::get_exif_data;
 
 #[wasm_bindgen]
 extern "C" {
@@ -50,38 +49,30 @@ pub fn process_image(bytes: &[u8], input: JsValue) -> Uint8Array {
         None => cropped_image,
     };
 
-    let image = write_image(&resized_image, &image_ops.compression_options);
-
-    let final_image: Vec<u8> = match &image_ops.exif_data {
-        Some(exif_data) => {
-            process_image_exif(image, exif_data, &image_ops.compression_options.format)
-        }
-        None => image,
-    };
-
-    return Uint8Array::from(final_image.as_slice());
-}
-
-fn process_image_exif(image: Vec<u8>, exif_data: &Vec<u8>, image_type: &ImageType) -> Vec<u8> {
-    match image_type {
-        // We'll support jpeg for now until we have a better
-        // idea on png exif handling
-        ImageType::Jpeg => {
-            return write_jpeg_exif(image, exif_data);
-        }
-        // Png Exif data from jpeg doesn't work well currently
-        // ImageType::Png => {
-        //     return write_png_exif(image, exif_data);
-        // }
-        _ => {
-            return image;
-        }
+    let mut exif_data: Option<Vec<u8>> = None;
+    if image_ops.exif_data.is_some() {
+        exif_data = image_ops.exif_data;
     }
+
+    let image = write_image(&resized_image, &image_ops.compression_options, exif_data);
+
+    return Uint8Array::from(image.as_slice());
 }
 
 #[wasm_bindgen]
 pub fn get_image_exif_data(bytes: &[u8]) -> Uint8Array {
-    let result = read_image_exif(bytes);
+    log("First two bytes");
+    let first_byte = bytes.get(0);
+    let second_byte = bytes.get(1);
 
+    log("First Byte: ");
+    log(format!("{:?}", first_byte).as_str());
+    log("Second Byte: ");
+    log(format!("{:?}", second_byte).as_str());
+
+    log("Getting EXIF Data");
+    let result = get_exif_data(bytes);
+
+    log("get exif data complete");
     return Uint8Array::from(result.as_slice());
 }

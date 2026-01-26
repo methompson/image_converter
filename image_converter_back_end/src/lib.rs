@@ -80,3 +80,36 @@ pub fn get_image_exif_data(bytes: &[u8]) -> Uint8Array {
     log("get exif data complete");
     return Uint8Array::from(result.as_slice());
 }
+
+#[wasm_bindgen]
+pub fn get_image_dimensions(bytes: &[u8]) -> JsValue {
+    let buff = Cursor::new(bytes);
+
+    let image_result = read_image_bytes(buff);
+    let image = match image_result {
+        Ok(result) => result,
+        Err(err) => {
+            error(format!("Error Opening Image: {:?}", err).as_str());
+            panic!();
+        }
+    };
+
+    let width = image.width();
+    let height = image.height();
+
+    let dimensions = js_sys::Object::new();
+    js_sys::Reflect::set(
+        &dimensions,
+        &JsValue::from_str("width"),
+        &JsValue::from_f64(width as f64),
+    )
+    .unwrap();
+    js_sys::Reflect::set(
+        &dimensions,
+        &JsValue::from_str("height"),
+        &JsValue::from_f64(height as f64),
+    )
+    .unwrap();
+
+    return JsValue::from(dimensions);
+}

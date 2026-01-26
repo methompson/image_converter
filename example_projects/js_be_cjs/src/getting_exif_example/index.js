@@ -21,7 +21,11 @@ async function main() {
 async function getImageExifData() {
   return new Promise(async (resolve, reject) => {
     try {
-      const imgExec = fork("./src/fork_exif_data.js", [], {});
+      const imgExec = fork(
+        "./src/getting_exif_example/fork_exif_data.js",
+        [],
+        {},
+      );
 
       const err = (err) => {
         const dat = new TextDecoder().decode(err);
@@ -66,9 +70,21 @@ async function getImageExifData() {
 async function compressImage(exifData) {
   return new Promise(async (resolve, reject) => {
     try {
-      const imgExec = fork("./src/fork_compress_tiff.js", [], {});
-      // const imgExec = fork("./src/fork_compress_png.js", [], {});
-      // const imgExec = fork("./src/fork_compress_jpg.js", [], {});
+      // const imgExec = fork(
+      //   "./src/getting_exif_example/fork_compress_tiff.js",
+      //   [],
+      //   {},
+      // );
+      // const imgExec = fork(
+      //   "./src/getting_exif_example/fork_compress_png.js",
+      //   [],
+      //   {},
+      // );
+      const imgExec = fork(
+        "./src/getting_exif_example/fork_compress_jpg.js",
+        [],
+        {},
+      );
 
       const err = (err) => {
         const dat = new TextDecoder().decode(err);

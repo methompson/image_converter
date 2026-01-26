@@ -107,7 +107,7 @@ pub fn write_image(
             let mut encoder = JpegEncoder::new_with_quality(&mut dat, opts.quality as u8);
 
             if exif_data.is_some() {
-                let _ = encoder.set_exif_metadata(exif_data.unwrap());
+                let _ = encoder.set_exif_metadata(exif_data.as_ref().unwrap().clone());
             }
 
             image.write_with_encoder(encoder).unwrap();
@@ -123,7 +123,7 @@ pub fn write_image(
                 PngEncoder::new_with_quality(&mut dat, compression, FilterType::Adaptive);
 
             if exif_data.is_some() {
-                let _ = encoder.set_exif_metadata(exif_data.unwrap());
+                let _ = encoder.set_exif_metadata(exif_data.as_ref().unwrap().clone());
             }
 
             image.write_with_encoder(encoder).unwrap();
@@ -132,12 +132,14 @@ pub fn write_image(
             let mut encoder = TiffEncoder::new(Cursor::new(&mut dat));
 
             if exif_data.is_some() {
-                let _ = encoder.set_exif_metadata(exif_data.unwrap());
+                let _ = encoder.set_exif_metadata(exif_data.as_ref().unwrap().clone());
             }
 
-            image
-                .write_to(&mut Cursor::new(&mut dat), ImageFormat::Tiff)
-                .unwrap();
+            image.write_with_encoder(encoder).unwrap();
+
+            // image
+            //     .write_to(&mut Cursor::new(&mut dat), ImageFormat::Tiff)
+            //     .unwrap();
         }
         ImageType::Tga => {
             image

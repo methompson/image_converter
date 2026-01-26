@@ -62,9 +62,9 @@ When bundling an app with tsup, it doesn't automatically copy any wasm files int
 
 ## Usage
 
-The project uses a set of classes for a declarative approach to converting images. The project is based around the ImageConverter class and several option classes that can be used.
+The project uses a set of classes for a declarative approach to converting images. The project is based around the `ImageConverter` class and several option classes that can be used.
 
-The ImageConverter class can be used with either a [File](https://developer.mozilla.org/en-US/docs/Web/API/File) object (web only) or a [Uint8Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Uint8Array) representing the binary data of an image file.
+The `ImageConverter` class can be used with either a [File](https://developer.mozilla.org/en-US/docs/Web/API/File) object (web only) or a [Uint8Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Uint8Array) representing the binary data of an image file.
 
 Example usage:
 
@@ -80,6 +80,23 @@ function convertMyImage(file: File) {
   return result;
 }
 ```
+
+Compression options are passed into the `ImageConverter`'s constructor:
+
+```ts
+export interface ImageConverterInput {
+  compression?: ImageCompressionOptions;
+  resize?: ImpageResizeOptions;
+  crop?: ImageCropOptions;
+  exifData?: Uint8Array;
+}
+```
+
+The `compression` key is for one of the compression options provided as part of this package. It includes options for compressing the image into a jpeg, png, gif, bpm, tga and tiff.
+The `resize` key is for one of the resize options in this package.
+The `crop` key is for one of the crop options in this package.
+The `exifData` key is for adding exif data to an image. This option should be used in conjunction with extracting exif data.
+
 
 `ImageConverter` provides two different ways to convert images:
 
@@ -124,6 +141,53 @@ You can specify one of serveral `CropOptions` objects to represent cropping an i
   - This operation allows you to define a new aspect ratio for an image and crops the image in the center based on this aspect ratio. E.g. you can use 1 for both `ratio_width` and `ratio_height` to define a square and crop a square in the middle of the image
 - `ImageCropEachSideOptions(payload: { crop_left: number; crop_right: number; crop_top: number; crop_bottom: number; })`
   - This operation allows you to describe cropping pixels on each of the four sides of the image.
+
+You can specify EXIF data to write to an image using the `exifData` option. This value should be used in conjunction with `extractExifData` to retrieve EXIF data in format that can be used by this option.
+
+Sometimes you want to remove EXIF data, beacuse the output is going to be small (like a thumbnail or avatar) and you want to save as much data as possible. You can pass a `stripExif` option to the `ImageConverter` class in the constructor to strip EXIF data from images.
+
+### EXIF Data
+
+The project also handles EXIF data from images that have some. Currently, this feature only works with jpeg and png images. The `extractExifData` API in the project extracts whatever EXIF data exists in an image and returns the data as a Uint8Array. This array of bytes can then be used to write EXIF data to the newly exported image.
+
+Arbitrary EXIF data cannot be inserted into the image, but any EXIF data can be extracted from images and inserted into others.
+
+Below is an example of extracting EXIF data using the `extractExifData` API and then writing said data to a compressed jpeg.
+
+```ts
+const fsp = require("node:fs/promises");
+const { extractExifData } = require("@metools/image_converter");
+
+async function getImageExifData() {
+  const filepath = 'path/to/file'
+  const img = await fsp.readFile(filepath);
+
+  const binaryArray = new Uint8Array(img);
+
+  const imgDat = extractExifData(binaryArray);
+
+  return imgDat; // A Uint8Array of EXIF data
+}
+
+/**
+ * Receiving image data as a Uint8Array
+ */
+async function writeImageExifData(imgData: Uint8Array, exifData: Uint8Array) {
+  const name = 'new_file_name.jpg';
+
+  const converter = new ImageConverter({
+    compression: new JpegCompressionOptions(65),
+    resize: new ImageResizeLongestSideOptions({
+      longest_side: 800,
+    }),
+    exifData,
+  });
+
+  const result = await converter.convertImageBytes(imgData);
+
+  return result;
+}
+```
 
 ## Errors
 

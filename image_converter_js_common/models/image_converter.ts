@@ -6,6 +6,7 @@ export interface ImageConverterInput {
   compression?: ImageCompressionOptions;
   resize?: ImpageResizeOptions;
   crop?: ImageCropOptions;
+  stripExif?: boolean;
   exifData?: Uint8Array;
 }
 
@@ -13,16 +14,18 @@ export abstract class AbstractImageConverter {
   compression?: ImageCompressionOptions;
   resize?: ImpageResizeOptions;
   crop?: ImageCropOptions;
+  stripExif?: boolean;
   exifData?: Uint8Array;
 
   constructor(payload: ImageConverterInput) {
     this.compression = payload.compression;
     this.resize = payload.resize;
     this.crop = payload.crop;
+    this.stripExif = payload.stripExif;
     this.exifData = payload.exifData;
   }
 
-  get options() {
+  get options(): ImageConverterInput {
     const options: Record<string, unknown> = {};
 
     if (this.compression) {
@@ -39,6 +42,10 @@ export abstract class AbstractImageConverter {
 
     if (this.exifData) {
       options.exifData = this.exifData;
+    }
+
+    if (this.stripExif !== undefined) {
+      options.stripExif = this.stripExif;
     }
 
     return options;

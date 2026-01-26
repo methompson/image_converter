@@ -49,9 +49,22 @@ pub fn process_image(bytes: &[u8], input: JsValue) -> Uint8Array {
         None => cropped_image,
     };
 
+    let strip_exif = match image_ops.strip_exif {
+        Some(v) => v,
+        None => false,
+    };
+
+    log("Stripping EXIF: ");
+    log(format!("{}", strip_exif).as_str());
+
     let mut exif_data: Option<Vec<u8>> = None;
-    if image_ops.exif_data.is_some() {
-        exif_data = image_ops.exif_data;
+    if !strip_exif && image_ops.exif_data.is_none() {
+        log("Getting EXIF from original image");
+        exif_data = Some(get_exif_data(bytes));
+    } else if image_ops.exif_data.is_some() {
+        log("Using provided EXIF data");
+    } else {
+        log("No EXIF data provided");
     }
 
     let image = write_image(&resized_image, &image_ops.compression_options, exif_data);
@@ -61,15 +74,6 @@ pub fn process_image(bytes: &[u8], input: JsValue) -> Uint8Array {
 
 #[wasm_bindgen]
 pub fn get_image_exif_data(bytes: &[u8]) -> Uint8Array {
-    log("First two bytes");
-    let first_byte = bytes.get(0);
-    let second_byte = bytes.get(1);
-
-    log("First Byte: ");
-    log(format!("{:?}", first_byte).as_str());
-    log("Second Byte: ");
-    log(format!("{:?}", second_byte).as_str());
-
     log("Getting EXIF Data");
     let result = get_exif_data(bytes);
 

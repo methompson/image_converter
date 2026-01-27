@@ -1,3 +1,5 @@
+import { getImageDimensions } from 'image_converter';
+
 export function sendToCompressionWorker(
   file: File,
 ): Promise<Uint8Array<ArrayBuffer>> {
@@ -49,4 +51,12 @@ export async function sendToExifWorker(file: File) {
 
     worker.postMessage(file);
   });
+}
+
+export async function sendToDimensionsWorker(file: File) {
+  const buf = await file.arrayBuffer();
+  const fileArr = new Uint8Array(buf);
+
+  const result = await getImageDimensions(fileArr);
+  return result;
 }

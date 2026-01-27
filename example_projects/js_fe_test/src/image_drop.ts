@@ -1,6 +1,11 @@
 // import wasm_heif from "@saschazar/wasm-heif";
 
-import { sendToCompressionWorker, sendToExifWorker } from './send_to_worker';
+import { getImageDimensions } from 'image_converter';
+import {
+  sendToCompressionWorker,
+  sendToDimensionsWorker,
+  sendToExifWorker,
+} from './send_to_worker';
 
 export async function initDrop() {
   // await init();
@@ -56,7 +61,16 @@ async function readFileAsBytes(file: File) {
   // const uint8Arr = new Uint8Array(buf);
 
   try {
-    const exifData = await sendToExifWorker(file);
+    const [dimensions, exifData] = await Promise.all([
+      sendToDimensionsWorker(file),
+      sendToExifWorker(file),
+    ]);
+
+    console.log({
+      dimensions,
+      exifData,
+    });
+
     const image = await sendToCompressionWorker(file);
 
     makeFileFromBytes(image);

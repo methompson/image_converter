@@ -1,6 +1,8 @@
 import { typeGuardGenerator, isNumber } from '@metools/tcheck';
 
-import { get_image_dimensions } from '@image_converter/image_converter_back_end';
+import init, {
+  get_image_dimensions,
+} from '@image_converter/image_converter_back_end';
 
 interface ImageDimensions {
   width: number;
@@ -12,7 +14,11 @@ const isImageDimensions = typeGuardGenerator<ImageDimensions>({
   height: isNumber,
 });
 
-export function getImageDimensions(bytes: Uint8Array): ImageDimensions {
+export async function getImageDimensions(
+  bytes: Uint8Array,
+): Promise<ImageDimensions> {
+  await init();
+
   const data = get_image_dimensions(bytes);
 
   if (!isImageDimensions(data)) {

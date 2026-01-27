@@ -12,7 +12,9 @@ const isImageDimensions = typeGuardGenerator<ImageDimensions>({
   height: isNumber,
 });
 
-export function getImageDimensions(bytes: Uint8Array): ImageDimensions {
+export async function getImageDimensions(
+  bytes: Uint8Array,
+): Promise<ImageDimensions> {
   const data = get_image_dimensions(bytes);
 
   if (!isImageDimensions(data)) {

@@ -14,7 +14,7 @@ use image_ops::{
 };
 use read_image::read_image_bytes;
 
-use crate::exif_ops::get_exif_data;
+use exif_ops::get_exif_data;
 
 use logging::js_error;
 
@@ -52,6 +52,7 @@ pub fn process_image(bytes: &[u8], input: JsValue) -> Uint8Array {
     if !strip_exif && image_ops.exif_data.is_none() {
         exif_data = Some(get_exif_data(bytes));
     } else if image_ops.exif_data.is_some() {
+        exif_data = image_ops.exif_data;
     }
 
     let image = write_image(&resized_image, &image_ops.compression_options, exif_data);

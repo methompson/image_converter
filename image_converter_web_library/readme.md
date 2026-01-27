@@ -180,7 +180,7 @@ async function processImage(file: File) {
   const buf = await file.arrayBuffer();
   const fileBytes new Uint8Array(buf);
 
-  const exifData = extractExifData(fileBytes);
+  const exifData = await extractExifData(fileBytes);
 
   const converter = new ImageConverter({
     compression: new JpegCompressionOptions(65),

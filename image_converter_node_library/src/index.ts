@@ -28,7 +28,10 @@ export { getJpegConverter } from '@/convenience/jpg_converter';
 
 export { getPngConverter } from '@/convenience/png_converter';
 
-export type { ImageConverterInput } from '@common/models/image_converter';
+export type {
+  ImageConverterInput,
+  ImageConversionInstanceOptions,
+} from '@common/models/image_converter';
 
 export { extractExifData } from './exif/extract_exif_data';
 export { getImageDimensions } from './dimensions/get_image_dimensions';

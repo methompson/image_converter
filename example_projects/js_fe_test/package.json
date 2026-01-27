@@ -9,7 +9,6 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@metools/web-image-converter": "^1.0.2",
     "image_converter": "file:../../image_converter_web_library"
   },
   "devDependencies": {

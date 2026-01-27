@@ -45,7 +45,7 @@ WebAssembly is still not a first class citizen among all bundlers and dev server
 
 ### Vite
 
-When bundling this app with Vite, you will need to prevent the package from being optimized using the `optimizeDeps.exclude` API:
+When bundling an app with Vite, you will need to prevent the package from being optimized using the `optimizeDeps.exclude` API:
 
 ```ts
 import { defineConfig } from "vite";
@@ -56,70 +56,165 @@ export default defineConfig({
 });
 ```
 
+### tsup
+
+When bundling an app with tsup, it doesn't automatically copy any wasm files into the dist folder. The expectation of a Node back end project is that you will be operating the application with a `node_modules` folder, which allows you to access the `@metools/node-image-converter` project directly, along with the APIs to interact with the converter. If the intention of the project is to bundle all dependencies into a single JS file (e.g. a single file script that is meant to be run like a CLI tool), you will likely need to use a combination of `noExternal` in tsup's `defineConfig` API and converting the wasm binary into a base64 string that can be embedded into the project.
+
 ## Usage
 
-The project uses a set of classes for a declarative approach to converting images. The project is based around the ImageConverter class and several option classes that can be used.
+The project uses a set of classes for a declarative approach to converting images. The project is based around the `ImageConverter` class and several option classes that can be used.
 
-The ImageConverter class can be used with either a [File](https://developer.mozilla.org/en-US/docs/Web/API/File) object (web only) or a [Uint8Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Uint8Array) representing the binary data of an image file.
+The `ImageConverter` class can be used with either a [File](https://developer.mozilla.org/en-US/docs/Web/API/File) object (web only) or a [Uint8Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Uint8Array) representing the binary data of an image file.
+
+### Compressing an Image
+
+Compressing an image is handled by the `ImageConverter` class. The Image Converter class accepts several inputs as part of its input to configure  what kind of image you'll output. You can tailor eac instance of an `ImageConverter` to perform specific tasks.
+
+Each `ImageConverter` has its own option set up. You can readily configure each `ImageConverter` instance to have several different options that will remain after instantiation. You can configure each instance with different compression, resize, cropping and exif options.
+
+```ts
+// Compresses an image input to a jpeg with quality 75 and the longest side is 800px
+const webSize = new ImageConverter({
+  compression: new JpegCompressionOptions(75),
+  resize: new ImageResizeLongestSideOptions({
+    longestSide: 800,
+  }),
+});
+
+// Compresses an image input to a jpeg with quality 60 and the longest side is 128px. Cropped down to a square
+const thumbSize = new ImageConverter({
+  compression: new JpegCompressionOptions(60),
+  resize: new ImageResizeLongestSideOptions({
+    longestSide: 128,
+  }),
+  crop: new ImageCropAspectRatioOptions({
+    ratioHeight: 1,
+    ratioWidth: 1,
+  }),
+  stripExif: true,
+});
+```
+
+The `ImageConverter` instance has the following inputs for its constructor:
+
+```ts
+export interface ImageConverterInput {
+  compression?: ImageCompressionOptions;
+  resize?: ImpageResizeOptions;
+  crop?: ImageCropOptions;
+  stripExif?: boolean;
+}
+
+new ImageConverter(payload: ImageConverterInput);
+```
+
+`compression` refers to the type of compression that will be used to create the new images. The default is jpeg compression at 75.
+`resize` refers to how the converter will resize image. The default is no resize.
+`crop` refers to how the image gets cropped. The default is no crop.
+`stripExif` determines if EXIF data gets stripped from the image. The default is to keep EXIF data.
+
+### Compressing an image
+
+There are several image formats that the user can select for compressing an image:
+
+```ts
+// Quality represents JPEG image quality. Should be a number between 1-100
+JpegCompressionOptions(quality: number)
+// Quality represents PNG image quality. Quality above 75 uses `Best` compression and everything else uses `Fast` compression
+PngCompressionOptions(quality: number)
+GifCompressionOptions()
+BmpCompressionOptions()
+TgaCompressionOptions()
+TiffCompressionOptions()
+```
+
+Only jpeg and png formats currently support user defined compression quality.
+
+### Resizing an Image
+
+There are 3 different types of Resize operations.
+
+```ts
+// This operation will find the longest side and resize that side to the provided number. This operation will preserve the aspect ratio.
+ImageResizeLongestSideOptions(payload: { longestSide: number; })
+// This will resize the image to the specified width and height. This operation will not preserve the image's aspect ratio and may cause squishing or stretching
+ImageResizeDimensionOptions(payload: { width: number; height: number; })
+// This operation will resize the image to a specific aspect ratio. This operation may cause squishing or stretching
+ImageResizeAspectRatioOptions(payload: { ratioWidth: number; ratioHeight: number; })
+```
+
+### Cropping an Image
+
+There are 3 different types of crop options.
+
+```ts
+// This operation sets the x and y position, then defines the width and height of a new image. This operation allows you to defined a sub-picture within the larger picture.
+ImageCropDimensionOptions(payload: { x: number; y: number; width: number; height: number; })
+// This operation allows you to define a new aspect ratio for an image and crops the image in the center based on this aspect ratio. E.g. you can use 1 for both `ratioWidth` and `ratioHeight` to define a square and crop a square in the middle of the image
+ImageCropAspectRatioOptions(payload: { ratioWidth: number; ratioHeight: number; })
+// This operation allows you to describe cropping pixels on each of the four sides of the image.
+ImageCropEachSideOptions(payload: { cropLeft: number; cropRight: number; cropTop: number; cropBottom: number; })
+```
+
+### EXIF Data
+
+Exif data can be stripped by the conversion process. This can save a few bytes of data, which is important when compression photographs down to small thumbnails. In the `ImageConverter` class, you can pass the `stripExif : true` value in the options. This will remove EXIF data from the image if any exists.
+
+The library also contains an API to retrieve EXIF data from the image. Currently, this API only export EXIF data as a `Uint8Array` binary format. Its purpose is to be able to write the data back into an image or transfer from one image to another.
+
+```ts
+extractExifData = (bytes: Uint8Array) => Uint8Array;
+```
 
 Example usage:
 
 ```ts
-function convertMyImage(file: File) {
-  // Creates a basic image converter
-  const converter = new ImageConverter();
-  // Converts a JS File object and returns a Uint8Array
-  const result = await converter.convertImageFile(file);
-  // Afterward, you can do what you want with this byte array,
-  // such as streaming it to a server via a Form Post or make
-  // a Blob and download it with URL.createObjectURL
-  return result;
+import {
+  extractExifData,
+  ImageConverter,
+  ImageResizeLongestSideOptions,
+  JpegCompressionOptions,
+} from '@metools/web-image-converter'
+
+async function processImage(file: File) {
+  const buf = await file.arrayBuffer();
+  const fileBytes new Uint8Array(buf);
+
+  const exifData = extractExifData(fileBytes);
+
+  const converter = new ImageConverter({
+    compression: new JpegCompressionOptions(65),
+    resize: new ImageResizeLongestSideOptions({
+      longestSide: 800,
+    }),
+  });
+
+  // New Image in Uint8Array format with the exifData written.
+  const result = await converter.convertImageBytes(data, {
+    exifData,
+  });
 }
+
 ```
 
-`ImageConverter` provides two different ways to convert images:
+### Image Dimensions
 
-- `convertImageFile(file: File): Promise<Uint8Array<ArrayBufferLike>>`
-  - This API accepts a JavaScript File object and runs it through the process (web-only)
-- `convertImageBytes(bytes: Uint8Array): Promise<Uint8Array<ArrayBufferLike>>`
-  - This API accepts a Uint8Array and does the same thing as `convertImageFile`.
+The image's dimensions can also be had with one of the APIs in the project.
 
-Both APIs return a `Uint8Array` object that can be used in any place where you may want to stream or save files:
+```ts
+getImageDimensions: (bytes: Uint8Array) => { width: number, height: number }
+```
 
-- [MDN Sending and Receiving Binary Data](https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest_API/Sending_and_Receiving_Binary_Data)
-- [MDN createObjectURL](https://developer.mozilla.org/en-US/docs/Web/API/URL/createObjectURL_static)
-- [MDN Using object URLs to display images](https://developer.mozilla.org/en-US/docs/Web/API/File_API/Using_files_from_web_applications#example_using_object_urls_to_display_images)
+Example usage:
 
-## Options
+```ts
+const { getImageDimensions } = require("image_converter");
 
-You can specify one of several `CompressionOptions` objects to represent output format and compression:
-
-- `JpegCompressionOptions(quality: number)`
-  - Quality represents JPEG image quality. Should be a number between 1-100
-- `PngCompressionOptions(quality: number)`
-  - Quality represents PNG image quality. Quality above 75 uses `Best` compression and everything else uses `Fast` compression
-- `GifCompressionOptions()`
-- `BmpCompressionOptions()`
-- `TgaCompressionOptions()`
-- `TiffCompressionOptions()`
-
-You can specify one of several `ResizeOptions` objects to represent resizing an image:
-
-- `ImageResizeLongestSideOptions(payload: { longestSide: number; })`
-  - This operation will find the longest side and resize that side to the provided number. This operation will preserve the aspect ratio.
-- `ImageResizeDimensionOptions(payload: { width: number; height: number; })`
-  - This will resize the image to the specified width and height. This operation will not preserve the image's aspect ratio and may cause squishing or stretching
-- `ImageResizeAspectRatioOptions(payload: { ratioWidth: number; ratioHeight: number; })`
-  - This operation will resize the image to a specific aspect ratio. This operation may cause squishing or stretching
-
-You can specify one of serveral `CropOptions` objects to represent cropping an image:
-
-- `ImageCropDimensionOptions(payload: { x: number; y: number; width: number; height: number; })`
-  - This operation sets the x and y position, then defines the width and height of a new image. This operation allows you to defined a sub-picture within the larger picture.
-- `ImageCropAspectRatioOptions(payload: { ratioWidth: number; ratioHeight: number; })`
-  - This operation allows you to define a new aspect ratio for an image and crops the image in the center based on this aspect ratio. E.g. you can use 1 for both `ratioWidth` and `ratioHeight` to define a square and crop a square in the middle of the image
-- `ImageCropEachSideOptions(payload: { cropLeft: number; cropRight: number; cropTop: number; cropBottom: number; })`
-  - This operation allows you to describe cropping pixels on each of the four sides of the image.
+async function getDimensions(file: Uint8Array) {
+  // In Object format
+  const dimensions = await getImageDimensions(imgData);
+}
+```
 
 ## Errors
 
@@ -135,7 +230,7 @@ As such, for the web, web workers may be a good way to use this package without 
 
 In Node, you may want to have the image conversion operation be a separate executable that can run on its own thread. You can probably use `exec` to execute a script.
 
-## Examples
+## More Examples
 
 Converting a file to Jpeg:
 

@@ -1,5 +1,6 @@
 mod exif_ops;
 mod image_ops;
+mod logging;
 mod read_image;
 
 use std::io::Cursor;
@@ -15,14 +16,7 @@ use read_image::read_image_bytes;
 
 use crate::exif_ops::get_exif_data;
 
-#[wasm_bindgen]
-extern "C" {
-    #[wasm_bindgen(js_namespace = console)]
-    fn log(s: &str);
-
-    #[wasm_bindgen(js_namespace = console)]
-    fn error(s: &str);
-}
+use logging::{js_error, js_log};
 
 #[wasm_bindgen]
 pub fn process_image(bytes: &[u8], input: JsValue) -> Uint8Array {
@@ -32,7 +26,7 @@ pub fn process_image(bytes: &[u8], input: JsValue) -> Uint8Array {
     let image = match image_result {
         Ok(result) => result,
         Err(err) => {
-            error(format!("Error Opening Image: {:?}", err).as_str());
+            js_error(format!("Error Opening Image: {:?}", err).as_str());
             panic!();
         }
     };
@@ -54,17 +48,17 @@ pub fn process_image(bytes: &[u8], input: JsValue) -> Uint8Array {
         None => false,
     };
 
-    log("Stripping EXIF: ");
-    log(format!("{}", strip_exif).as_str());
+    js_log("Stripping EXIF: ");
+    js_log(format!("{}", strip_exif).as_str());
 
     let mut exif_data: Option<Vec<u8>> = None;
     if !strip_exif && image_ops.exif_data.is_none() {
-        log("Getting EXIF from original image");
+        js_log("Getting EXIF from original image");
         exif_data = Some(get_exif_data(bytes));
     } else if image_ops.exif_data.is_some() {
-        log("Using provided EXIF data");
+        js_log("Using provided EXIF data");
     } else {
-        log("No EXIF data provided");
+        js_log("No EXIF data provided");
     }
 
     let image = write_image(&resized_image, &image_ops.compression_options, exif_data);
@@ -74,10 +68,10 @@ pub fn process_image(bytes: &[u8], input: JsValue) -> Uint8Array {
 
 #[wasm_bindgen]
 pub fn get_image_exif_data(bytes: &[u8]) -> Uint8Array {
-    log("Getting EXIF Data");
+    js_log("Getting EXIF Data");
     let result = get_exif_data(bytes);
 
-    log("get exif data complete");
+    js_log("get exif data complete");
     return Uint8Array::from(result.as_slice());
 }
 
@@ -89,7 +83,7 @@ pub fn get_image_dimensions(bytes: &[u8]) -> JsValue {
     let image = match image_result {
         Ok(result) => result,
         Err(err) => {
-            error(format!("Error Opening Image: {:?}", err).as_str());
+            js_error(format!("Error Opening Image: {:?}", err).as_str());
             panic!();
         }
     };

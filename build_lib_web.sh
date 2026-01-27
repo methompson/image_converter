@@ -10,3 +10,5 @@ rm image_converter_web_library/src/image_converter_binary/package.json
   cd image_converter_web_library
   npm run build
 )
+
+cp readme.md image_converter_web_library/readme.md

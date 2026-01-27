@@ -31,7 +31,7 @@ pub struct CompressionOptions {
     pub quality: u32,
 }
 
-const DEFAULT_IMAGE_QUALITY: u32 = 64;
+const DEFAULT_IMAGE_QUALITY: u32 = 75;
 const DEFAULT_IMAGE_TYPE: ImageType = ImageType::Jpeg;
 
 fn parse_options_input(input: JsValue) -> Option<CompressionOptionsInput> {

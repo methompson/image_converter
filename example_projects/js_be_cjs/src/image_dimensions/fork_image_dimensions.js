@@ -1,11 +1,6 @@
 const { isRecord, isString } = require("@metools/tcheck");
 
-const {
-  ImageConverter,
-  JpegCompressionOptions,
-  ImageResizeLongestSideOptions,
-  getImageDimensions,
-} = require("image_converter");
+const { getImageDimensions } = require("image_converter");
 
 const fsp = require("node:fs/promises");
 const { getImageData } = require("./get_image_data");

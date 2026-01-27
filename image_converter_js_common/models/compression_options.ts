@@ -34,8 +34,8 @@ export class PngCompressionOptions extends ImageCompressionOptions {
   constructor(quality: number) {
     super();
 
-    if (quality < 0 || quality > 9) {
-      throw new Error('Compression level must be between 0 and 9');
+    if (quality < 0 || quality > 100) {
+      throw new Error('Compression level must be between 0 and 100');
     }
 
     this.quality = quality;

@@ -5,9 +5,9 @@ import { ImageConverter } from '@/models/image_converter';
 
 export function getPngConverter(payload?: {
   compressionLevel?: number;
-  longest_side?: number;
+  longestSide?: number;
 }) {
-  const { compressionLevel, longest_side } = payload ?? {};
+  const { compressionLevel, longestSide } = payload ?? {};
 
   const input: ImageConverterInput = {};
 
@@ -15,9 +15,9 @@ export function getPngConverter(payload?: {
     input.compression = new PngCompressionOptions(compressionLevel);
   }
 
-  if (longest_side) {
+  if (longestSide) {
     input.resize = new ImageResizeLongestSideOptions({
-      longest_side: longest_side,
+      longestSide,
     });
   }
 

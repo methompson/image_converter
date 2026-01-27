@@ -2,7 +2,7 @@ const { fork } = require("node:child_process");
 const { TextDecoder } = require("node:util");
 const { isObject, isArrayOf, isNumber } = require("@metools/tcheck");
 
-const imgName = "img.jpg";
+const imgName = "IMG_3796.JPG";
 
 main();
 async function main() {

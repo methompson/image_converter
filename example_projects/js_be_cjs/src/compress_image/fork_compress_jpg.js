@@ -4,6 +4,7 @@ const {
   ImageConverter,
   JpegCompressionOptions,
   ImageResizeLongestSideOptions,
+  ImageCropAspectRatioOptions,
 } = require("image_converter");
 
 const fsp = require("node:fs/promises");
@@ -66,7 +67,11 @@ async function convertImage(data) {
     // stripExif: true,
     compression: new JpegCompressionOptions(65),
     resize: new ImageResizeLongestSideOptions({
-      longest_side: 800,
+      longestSide: 800,
+    }),
+    crop: new ImageCropAspectRatioOptions({
+      ratioHeight: 1,
+      ratioWidth: 1,
     }),
   });
 

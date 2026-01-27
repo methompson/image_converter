@@ -79,12 +79,13 @@ async function convertImage(data, exifData) {
   const converter = new ImageConverter({
     compression: new JpegCompressionOptions(65),
     resize: new ImageResizeLongestSideOptions({
-      longest_side: 800,
+      longestSide: 800,
     }),
-    exifData: exifData,
   });
 
-  const result = await converter.convertImageBytes(data);
+  const result = await converter.convertImageBytes(data, {
+    exifData,
+  });
 
   return result;
 }

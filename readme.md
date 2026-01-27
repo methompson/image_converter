@@ -62,6 +62,45 @@ When bundling an app with tsup, it doesn't automatically copy any wasm files int
 
 ## Usage
 
+### Compressing an Image
+
+Compressing an image is handled by the `ImageConverter` class. The Image Converter class accepts several inputs as part of its input to configure  what kind of image you'll output. You can tailor eac instance of an `ImageConverter` to perform specific tasks.
+
+Each `ImageConverter` has its own option set up. You can readily configure each `ImageConverter` instance to have several different options that will remain after instantiation. You can configure each instance with different compression, resize, cropping and exif options.
+
+```ts
+// Compresses an image input to a jpeg with quality 75 and the longest side is 800px
+const webSize = new ImageConverter({
+  compression: new JpegCompressionOptions(75),
+  resize: new ImageResizeLongestSideOptions({
+    longestSide: 800,
+  }),
+});
+
+// Compresses an image input to a jpeg with quality 60 and the longest side is 128px. Cropped down to a square
+const thumbSize = new ImageConverter({
+  compression: new JpegCompressionOptions(60),
+  resize: new ImageResizeLongestSideOptions({
+    longestSide: 128,
+  }),
+  crop: new ImageCropAspectRatioOptions({
+    ratioHeight: 1,
+    ratioWidth: 1,
+  }),
+  stripExif: true,
+});
+```
+
+### Resizing an Image
+
+
+
+### Cropping an Image
+
+### EXIF Data
+
+### Image Dimensions
+
 The project uses a set of classes for a declarative approach to converting images. The project is based around the `ImageConverter` class and several option classes that can be used.
 
 The `ImageConverter` class can be used with either a [File](https://developer.mozilla.org/en-US/docs/Web/API/File) object (web only) or a [Uint8Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Uint8Array) representing the binary data of an image file.
@@ -130,16 +169,16 @@ You can specify one of several `ResizeOptions` objects to represent resizing an 
   - This operation will find the longest side and resize that side to the provided number. This operation will preserve the aspect ratio.
 - `ImageResizeDimensionOptions(payload: { width: number; height: number; })`
   - This will resize the image to the specified width and height. This operation will not preserve the image's aspect ratio and may cause squishing or stretching
-- `ImageResizeAspectRatioOptions(payload: { ratio_width: number; ratio_height: number; })`
+- `ImageResizeAspectRatioOptions(payload: { ratioWidth: number; ratioHeight: number; })`
   - This operation will resize the image to a specific aspect ratio. This operation may cause squishing or stretching
 
 You can specify one of serveral `CropOptions` objects to represent cropping an image:
 
 - `ImageCropDimensionOptions(payload: { x: number; y: number; width: number; height: number; })`
   - This operation sets the x and y position, then defines the width and height of a new image. This operation allows you to defined a sub-picture within the larger picture.
-- `ImageCropAspectRatioOptions(payload: { ratio_width: number; ratio_height: number; })`
-  - This operation allows you to define a new aspect ratio for an image and crops the image in the center based on this aspect ratio. E.g. you can use 1 for both `ratio_width` and `ratio_height` to define a square and crop a square in the middle of the image
-- `ImageCropEachSideOptions(payload: { crop_left: number; crop_right: number; crop_top: number; crop_bottom: number; })`
+- `ImageCropAspectRatioOptions(payload: { ratioWidth: number; ratioHeight: number; })`
+  - This operation allows you to define a new aspect ratio for an image and crops the image in the center based on this aspect ratio. E.g. you can use 1 for both `ratioWidth` and `ratioHeight` to define a square and crop a square in the middle of the image
+- `ImageCropEachSideOptions(payload: { cropLeft: number; cropRight: number; cropTop: number; cropBottom: number; })`
   - This operation allows you to describe cropping pixels on each of the four sides of the image.
 
 You can specify EXIF data to write to an image using the `exifData` option. This value should be used in conjunction with `extractExifData` to retrieve EXIF data in format that can be used by this option.
@@ -178,7 +217,7 @@ async function writeImageExifData(imgData: Uint8Array, exifData: Uint8Array) {
   const converter = new ImageConverter({
     compression: new JpegCompressionOptions(65),
     resize: new ImageResizeLongestSideOptions({
-      longest_side: 800,
+      longestSide: 800,
     }),
     exifData,
   });
@@ -240,19 +279,19 @@ function makeImageSet(bin: Uint8Array) {
   const thumb = new ImageConverter({
     compression: new JpegCompressionOptions(40),
     resize: new ImageResizeLongestSideOptions({
-      longest_side: 128,
+      longestSide: 128,
     }),
   });
   const preview = new ImageConverter({
     compression: new JpegCompressionOptions(40),
     resize: new ImageResizeLongestSideOptions({
-      longest_side: 256,
+      longestSide: 256,
     }),
   });
   const image = new ImageConverter({
     compression: new JpegCompressionOptions(60),
     resize: new ImageResizeLongestSideOptions({
-      longest_side: 1280,
+      longestSide: 1280,
     }),
   });
 
@@ -273,11 +312,11 @@ function makeProfilePic(file: File) {
   const profile = new ImageConverter({
     compression: new JpegCompressionOptions(40),
     crop: new ImageCropAspectRatioOptions({
-      ratio_width: 1,
-      ratio_height: 1,
+      ratioWidth: 1,
+      ratioHeight: 1,
     }),
     resize: new ImageResizeLongestSideOptions({
-      longest_side: 128,
+      longestSide: 128,
     }),
   });
 

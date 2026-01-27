@@ -5,9 +5,9 @@ import { ImageConverter } from '@/models/image_converter';
 
 export function getJpegConverter(payload?: {
   quality?: number;
-  longest_side?: number;
+  longestSide?: number;
 }) {
-  const { quality, longest_side } = payload ?? {};
+  const { quality, longestSide } = payload ?? {};
 
   const input: ImageConverterInput = {};
 
@@ -15,9 +15,9 @@ export function getJpegConverter(payload?: {
     input.compression = new JpegCompressionOptions(quality);
   }
 
-  if (longest_side) {
+  if (longestSide) {
     input.resize = new ImageResizeLongestSideOptions({
-      longest_side: longest_side,
+      longestSide,
     });
   }
 

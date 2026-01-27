@@ -105,20 +105,20 @@ You can specify one of several `CompressionOptions` objects to represent output 
 
 You can specify one of several `ResizeOptions` objects to represent resizing an image:
 
-- `ImageResizeLongestSideOptions(payload: { longest_side: number; })`
+- `ImageResizeLongestSideOptions(payload: { longestSide: number; })`
   - This operation will find the longest side and resize that side to the provided number. This operation will preserve the aspect ratio.
 - `ImageResizeDimensionOptions(payload: { width: number; height: number; })`
   - This will resize the image to the specified width and height. This operation will not preserve the image's aspect ratio and may cause squishing or stretching
-- `ImageResizeAspectRatioOptions(payload: { ratio_width: number; ratio_height: number; })`
+- `ImageResizeAspectRatioOptions(payload: { ratioWidth: number; ratioHeight: number; })`
   - This operation will resize the image to a specific aspect ratio. This operation may cause squishing or stretching
 
 You can specify one of serveral `CropOptions` objects to represent cropping an image:
 
 - `ImageCropDimensionOptions(payload: { x: number; y: number; width: number; height: number; })`
   - This operation sets the x and y position, then defines the width and height of a new image. This operation allows you to defined a sub-picture within the larger picture.
-- `ImageCropAspectRatioOptions(payload: { ratio_width: number; ratio_height: number; })`
-  - This operation allows you to define a new aspect ratio for an image and crops the image in the center based on this aspect ratio. E.g. you can use 1 for both `ratio_width` and `ratio_height` to define a square and crop a square in the middle of the image
-- `ImageCropEachSideOptions(payload: { crop_left: number; crop_right: number; crop_top: number; crop_bottom: number; })`
+- `ImageCropAspectRatioOptions(payload: { ratioWidth: number; ratioHeight: number; })`
+  - This operation allows you to define a new aspect ratio for an image and crops the image in the center based on this aspect ratio. E.g. you can use 1 for both `ratioWidth` and `ratioHeight` to define a square and crop a square in the middle of the image
+- `ImageCropEachSideOptions(payload: { cropLeft: number; cropRight: number; cropTop: number; cropBottom: number; })`
   - This operation allows you to describe cropping pixels on each of the four sides of the image.
 
 ## Errors
@@ -172,19 +172,19 @@ function makeImageSet(bin: Uint8Array) {
   const thumb = new ImageConverter({
     compression: new JpegCompressionOptions(40),
     resize: new ImageResizeLongestSideOptions({
-      longest_side: 128,
+      longestSide: 128,
     }),
   });
   const preview = new ImageConverter({
     compression: new JpegCompressionOptions(40),
     resize: new ImageResizeLongestSideOptions({
-      longest_side: 256,
+      longestSide: 256,
     }),
   });
   const image = new ImageConverter({
     compression: new JpegCompressionOptions(60),
     resize: new ImageResizeLongestSideOptions({
-      longest_side: 1280,
+      longestSide: 1280,
     }),
   });
 
@@ -205,11 +205,11 @@ function makeProfilePic(file: File) {
   const profile = new ImageConverter({
     compression: new JpegCompressionOptions(40),
     crop: new ImageCropAspectRatioOptions({
-      ratio_width: 1,
-      ratio_height: 1,
+      ratioWidth: 1,
+      ratioHeight: 1,
     }),
     resize: new ImageResizeLongestSideOptions({
-      longest_side: 128,
+      longestSide: 128,
     }),
   });
 

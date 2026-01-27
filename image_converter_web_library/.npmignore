@@ -19,3 +19,5 @@ tsconfig.json
 tsup.config.ts
 
 publish.sh
+
+metools-web-image-converter-*.tgz

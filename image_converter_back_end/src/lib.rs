@@ -16,7 +16,7 @@ use read_image::read_image_bytes;
 
 use crate::exif_ops::get_exif_data;
 
-use logging::{js_error, js_log};
+use logging::js_error;
 
 #[wasm_bindgen]
 pub fn process_image(bytes: &[u8], input: JsValue) -> Uint8Array {
@@ -48,17 +48,10 @@ pub fn process_image(bytes: &[u8], input: JsValue) -> Uint8Array {
         None => false,
     };
 
-    js_log("Stripping EXIF: ");
-    js_log(format!("{}", strip_exif).as_str());
-
     let mut exif_data: Option<Vec<u8>> = None;
     if !strip_exif && image_ops.exif_data.is_none() {
-        js_log("Getting EXIF from original image");
         exif_data = Some(get_exif_data(bytes));
     } else if image_ops.exif_data.is_some() {
-        js_log("Using provided EXIF data");
-    } else {
-        js_log("No EXIF data provided");
     }
 
     let image = write_image(&resized_image, &image_ops.compression_options, exif_data);
@@ -68,10 +61,8 @@ pub fn process_image(bytes: &[u8], input: JsValue) -> Uint8Array {
 
 #[wasm_bindgen]
 pub fn get_image_exif_data(bytes: &[u8]) -> Uint8Array {
-    js_log("Getting EXIF Data");
     let result = get_exif_data(bytes);
 
-    js_log("get exif data complete");
     return Uint8Array::from(result.as_slice());
 }
 

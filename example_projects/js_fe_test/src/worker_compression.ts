@@ -2,31 +2,26 @@ import {
   ImageConverter,
   ImageResizeLongestSideOptions,
   JpegCompressionOptions,
-} from "image_converter";
-// import {
-//   ImageConverter,
-//   ImageResizeLongestSideOptions,
-//   JpegCompressionOptions,
-// } from "@metools/web-image-converter";
+} from 'image_converter';
 
 onmessage = async (e: MessageEvent) => {
-  console.log("Worker received message:", e);
+  console.log('Worker received message:', e);
 
   if (e.data instanceof File) {
-    console.log("Received File");
+    console.log('Received File');
 
     const result = await convertImage(e.data);
 
     postMessage(result);
   } else {
-    postMessage("Received non-File data");
+    postMessage('Received non-File data');
   }
 };
 
 async function convertImage(file: File) {
   const converter = new ImageConverter({
     compression: new JpegCompressionOptions(65),
-    resize: new ImageResizeLongestSideOptions({ longest_side: 1024 }),
+    resize: new ImageResizeLongestSideOptions({ longestSide: 1024 }),
   });
 
   const result = await converter.convertImageFile(file);

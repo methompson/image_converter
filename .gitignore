@@ -8,3 +8,6 @@ node_modules
 *.tiff
 
 .DS_Store
+
+metools-node-image-converter-*.tgz
+metools-web-image-converter-*.tgz

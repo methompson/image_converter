@@ -6,20 +6,30 @@ export interface ImageConverterInput {
   compression?: ImageCompressionOptions;
   resize?: ImpageResizeOptions;
   crop?: ImageCropOptions;
+  stripExif?: boolean;
+}
+
+export interface ImageConversionInstanceOptions {
+  exifData?: Uint8Array;
 }
 
 export abstract class AbstractImageConverter {
   compression?: ImageCompressionOptions;
   resize?: ImpageResizeOptions;
   crop?: ImageCropOptions;
+  stripExif?: boolean;
 
   constructor(payload: ImageConverterInput) {
     this.compression = payload.compression;
     this.resize = payload.resize;
     this.crop = payload.crop;
+    this.stripExif = payload.stripExif;
   }
 
-  get options() {
+  /**
+   * Get the options to pass to the image processing function.
+   */
+  get options(): ImageConverterInput {
     const options: Record<string, unknown> = {};
 
     if (this.compression) {
@@ -34,8 +44,15 @@ export abstract class AbstractImageConverter {
       options.cropOptions = this.crop.optionExport;
     }
 
+    if (this.stripExif !== undefined) {
+      options.stripExif = this.stripExif;
+    }
+
     return options;
   }
 
-  abstract convertImageBytes(bytes: Uint8Array): Promise<Uint8Array>;
+  abstract convertImageBytes(
+    bytes: Uint8Array,
+    options?: ImageConversionInstanceOptions,
+  ): Promise<Uint8Array>;
 }

@@ -1,15 +1,18 @@
 {
   "name": "js_be_test",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "src/main.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node src/main.js"
   },
   "author": "",
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "@metools/node-image-converter": "^1.0.3",
+    "@metools/tcheck": "^1.4.2",
     "image_converter": "file:../../image_converter_node_library/"
+  },
+  "devDependencies": {
+    "@types/node": "^25.0.9"
   }
 }

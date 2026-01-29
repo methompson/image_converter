@@ -1,0 +1,14 @@
+./build_rust_for_node.sh
+
+rm -rf image_converter_node_library/src/image_converter_binary
+cp -r image_converter_back_end/pkg image_converter_node_library/src/image_converter_binary
+
+rm image_converter_node_library/src/image_converter_binary/README.md
+rm image_converter_node_library/src/image_converter_binary/package.json
+
+(
+  cd image_converter_node_library
+  npm run build
+)
+
+cp readme.md image_converter_node_library/readme.md

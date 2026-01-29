@@ -5,23 +5,40 @@ interface CropDimensionOptions {
   height: number;
 }
 interface CropAspectRatioOptions {
+  ratioWidth: number;
+  ratioHeight: number;
+}
+interface CropEachSideOptions {
+  cropLeft: number;
+  cropRight: number;
+  cropTop: number;
+  cropBottom: number;
+}
+
+interface CropDimensionRustInput {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+interface CropAspectRatioRustInput {
   ratio_width: number;
   ratio_height: number;
 }
-interface CropEachSideOptions {
+interface CropEachSideRustInput {
   crop_left: number;
   crop_right: number;
   crop_top: number;
   crop_bottom: number;
 }
 
-type CropOptions =
-  | CropDimensionOptions
-  | CropAspectRatioOptions
-  | CropEachSideOptions;
+type CropRustInput =
+  | CropDimensionRustInput
+  | CropAspectRatioRustInput
+  | CropEachSideRustInput;
 
 export abstract class ImageCropOptions {
-  abstract get optionExport(): CropOptions;
+  abstract get optionExport(): CropRustInput;
 }
 
 export class ImageCropDimensionOptions extends ImageCropOptions {
@@ -30,18 +47,13 @@ export class ImageCropDimensionOptions extends ImageCropOptions {
   width: number;
   height: number;
 
-  constructor(payload: {
-    x: number;
-    y: number;
-    width: number;
-    height: number;
-  }) {
+  constructor(payload: CropDimensionOptions) {
     super();
 
     const { x, y, width, height } = payload;
 
     if (x < 0 || y < 0 || width <= 0 || height <= 0) {
-      throw new Error('Values must be greater than or equal to 0');
+      throw new Error("Values must be greater than or equal to 0");
     }
 
     this.x = x;
@@ -50,7 +62,7 @@ export class ImageCropDimensionOptions extends ImageCropOptions {
     this.height = height;
   }
 
-  get optionExport(): CropDimensionOptions {
+  get optionExport(): CropDimensionRustInput {
     return {
       x: this.x,
       y: this.y,
@@ -61,62 +73,57 @@ export class ImageCropDimensionOptions extends ImageCropOptions {
 }
 
 export class ImageCropAspectRatioOptions extends ImageCropOptions {
-  ratio_width: number;
-  ratio_height: number;
+  ratioWidth: number;
+  ratioHeight: number;
 
-  constructor(payload: { ratio_width: number; ratio_height: number }) {
+  constructor(payload: CropAspectRatioOptions) {
     super();
 
-    const { ratio_width, ratio_height } = payload;
+    const { ratioWidth, ratioHeight } = payload;
 
-    if (ratio_width <= 0 || ratio_height <= 0) {
-      throw new Error('Ratio width and height must be greater than 0');
+    if (ratioWidth <= 0 || ratioHeight <= 0) {
+      throw new Error("Ratio width and height must be greater than 0");
     }
 
-    this.ratio_width = ratio_width;
-    this.ratio_height = ratio_height;
+    this.ratioWidth = ratioWidth;
+    this.ratioHeight = ratioHeight;
   }
 
-  get optionExport(): CropAspectRatioOptions {
+  get optionExport(): CropAspectRatioRustInput {
     return {
-      ratio_width: this.ratio_width,
-      ratio_height: this.ratio_height,
+      ratio_width: this.ratioWidth,
+      ratio_height: this.ratioHeight,
     };
   }
 }
 
 export class ImageCropEachSideOptions extends ImageCropOptions {
-  crop_left: number;
-  crop_right: number;
-  crop_top: number;
-  crop_bottom: number;
+  cropLeft: number;
+  cropRight: number;
+  cropTop: number;
+  cropBottom: number;
 
-  constructor(payload: {
-    crop_left: number;
-    crop_right: number;
-    crop_top: number;
-    crop_bottom: number;
-  }) {
+  constructor(payload: CropEachSideOptions) {
     super();
 
-    const { crop_left, crop_right, crop_top, crop_bottom } = payload;
+    const { cropLeft, cropRight, cropTop, cropBottom } = payload;
 
-    if (crop_left < 0 || crop_right < 0 || crop_top < 0 || crop_bottom < 0) {
-      throw new Error('Values must be greater than or equal to 0');
+    if (cropLeft < 0 || cropRight < 0 || cropTop < 0 || cropBottom < 0) {
+      throw new Error("Values must be greater than or equal to 0");
     }
 
-    this.crop_left = crop_left;
-    this.crop_right = crop_right;
-    this.crop_top = crop_top;
-    this.crop_bottom = crop_bottom;
+    this.cropLeft = cropLeft;
+    this.cropRight = cropRight;
+    this.cropTop = cropTop;
+    this.cropBottom = cropBottom;
   }
 
-  get optionExport(): CropEachSideOptions {
+  get optionExport(): CropEachSideRustInput {
     return {
-      crop_left: this.crop_left,
-      crop_right: this.crop_right,
-      crop_top: this.crop_top,
-      crop_bottom: this.crop_bottom,
+      crop_left: this.cropLeft,
+      crop_right: this.cropRight,
+      crop_top: this.cropTop,
+      crop_bottom: this.cropBottom,
     };
   }
 }

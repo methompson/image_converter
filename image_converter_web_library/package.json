@@ -1,6 +1,6 @@
 {
   "name": "@metools/web-image-converter",
-  "version": "1.0.4",
+  "version": "2.0.0",
   "main": "dist/index.js",
   "module": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -31,5 +31,8 @@
     "tsup": "^8.5.0",
     "typescript": "^5.8.3",
     "typescript-eslint": "^8.32.1"
+  },
+  "dependencies": {
+    "@metools/tcheck": "^1.4.4"
   }
 }

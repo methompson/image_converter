@@ -1,19 +1,24 @@
 // import wasm_heif from "@saschazar/wasm-heif";
 
-import { sendToWorker } from "./send_to_worker";
+import { getImageDimensions } from 'image_converter';
+import {
+  sendToCompressionWorker,
+  sendToDimensionsWorker,
+  sendToExifWorker,
+} from './send_to_worker';
 
 export async function initDrop() {
   // await init();
 
-  const drop = document.querySelector("#drop");
+  const drop = document.querySelector('#drop');
 
-  console.log("drop?", drop);
+  console.log('drop?', drop);
 
-  drop?.addEventListener("dragover", (ev) => {
+  drop?.addEventListener('dragover', (ev) => {
     // prevent default to allow drop
     ev.preventDefault();
   });
-  drop?.addEventListener("drop", async (ev) => {
+  drop?.addEventListener('drop', async (ev) => {
     ev.preventDefault();
     if (ev instanceof DragEvent) {
       readFile(ev);
@@ -27,7 +32,7 @@ export async function initDrop() {
 
 let timer: number = 0;
 export function initTimer() {
-  const timerDiv = document.querySelector("#timer");
+  const timerDiv = document.querySelector('#timer');
   setTimeout(() => {
     if (timerDiv) {
       timerDiv.innerHTML = `Timer: ${timer}`;
@@ -40,8 +45,8 @@ export function initTimer() {
 function readFile(ev: DragEvent) {
   const files = ev.dataTransfer?.files ?? [];
   for (const item of files) {
-    console.log("type:", item.type);
-    if (item.type === "image/heic") {
+    console.log('type:', item.type);
+    if (item.type === 'image/heic') {
       // readHeif(item);
     } else {
       readFileAsBytes(item);
@@ -56,9 +61,19 @@ async function readFileAsBytes(file: File) {
   // const uint8Arr = new Uint8Array(buf);
 
   try {
-    const result = await sendToWorker(file);
+    const [dimensions, exifData] = await Promise.all([
+      sendToDimensionsWorker(file),
+      sendToExifWorker(file),
+    ]);
 
-    makeFileFromBytes(result);
+    console.log({
+      dimensions,
+      exifData,
+    });
+
+    const image = await sendToCompressionWorker(file);
+
+    makeFileFromBytes(image);
   } catch (e) {
     console.error(e);
   }
@@ -96,20 +111,20 @@ async function readFileAsBytes(file: File) {
 //   heifModule.free();
 // }
 
-function makeFileFromBytes(bytesArray: Uint8Array) {
-  console.log("Making File", bytesArray.length);
+function makeFileFromBytes(bytesArray: Uint8Array<ArrayBuffer>) {
+  console.log('Making File', bytesArray.length);
   // const b64encoded = arrayBufferToBase64(bytesArray);
   const blob = new Blob([bytesArray]);
   const blobUrl = URL.createObjectURL(blob);
 
-  const downloadEl = document.createElement("a");
-  downloadEl.setAttribute("href", blobUrl);
-  downloadEl.setAttribute("download", "new_file.jpg");
+  const downloadEl = document.createElement('a');
+  downloadEl.setAttribute('href', blobUrl);
+  downloadEl.setAttribute('download', 'new_file.jpg');
 
-  downloadEl.style.display = "none";
+  downloadEl.style.display = 'none';
   document.body.appendChild(downloadEl);
 
-  downloadEl.innerHTML = "link";
+  downloadEl.innerHTML = 'link';
 
   downloadEl.click();
 

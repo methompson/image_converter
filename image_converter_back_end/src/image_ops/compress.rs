@@ -4,8 +4,9 @@ use image::{
     codecs::{
         jpeg::JpegEncoder,
         png::{CompressionType, FilterType, PngEncoder},
+        tiff::TiffEncoder,
     },
-    DynamicImage, ImageFormat,
+    DynamicImage, ImageEncoder, ImageFormat,
 };
 use serde::{Deserialize, Serialize};
 use wasm_bindgen::JsValue;
@@ -30,7 +31,7 @@ pub struct CompressionOptions {
     pub quality: u32,
 }
 
-const DEFAULT_IMAGE_QUALITY: u32 = 64;
+const DEFAULT_IMAGE_QUALITY: u32 = 75;
 const DEFAULT_IMAGE_TYPE: ImageType = ImageType::Jpeg;
 
 fn parse_options_input(input: JsValue) -> Option<CompressionOptionsInput> {
@@ -84,7 +85,11 @@ pub fn parse_compression_options(input: JsValue) -> CompressionOptions {
     }
 }
 
-pub fn write_image(image: &DynamicImage, opts: CompressionOptions) -> Vec<u8> {
+pub fn write_image(
+    image: &DynamicImage,
+    opts: &CompressionOptions,
+    exif_data: Option<Vec<u8>>,
+) -> Vec<u8> {
     let mut dat: Vec<u8> = Vec::new();
 
     match opts.format {
@@ -99,7 +104,12 @@ pub fn write_image(image: &DynamicImage, opts: CompressionOptions) -> Vec<u8> {
                 .unwrap();
         }
         ImageType::Jpeg => {
-            let encoder = JpegEncoder::new_with_quality(&mut dat, opts.quality as u8);
+            let mut encoder = JpegEncoder::new_with_quality(&mut dat, opts.quality as u8);
+
+            if exif_data.is_some() {
+                let _ = encoder.set_exif_metadata(exif_data.as_ref().unwrap().clone());
+            }
+
             image.write_with_encoder(encoder).unwrap();
         }
         ImageType::Png => {
@@ -109,13 +119,27 @@ pub fn write_image(image: &DynamicImage, opts: CompressionOptions) -> Vec<u8> {
                 CompressionType::Fast
             };
 
-            let encoder = PngEncoder::new_with_quality(&mut dat, compression, FilterType::Adaptive);
+            let mut encoder =
+                PngEncoder::new_with_quality(&mut dat, compression, FilterType::Adaptive);
+
+            if exif_data.is_some() {
+                let _ = encoder.set_exif_metadata(exif_data.as_ref().unwrap().clone());
+            }
+
             image.write_with_encoder(encoder).unwrap();
         }
         ImageType::Tiff => {
-            image
-                .write_to(&mut Cursor::new(&mut dat), ImageFormat::Tiff)
-                .unwrap();
+            let mut encoder = TiffEncoder::new(Cursor::new(&mut dat));
+
+            if exif_data.is_some() {
+                let _ = encoder.set_exif_metadata(exif_data.as_ref().unwrap().clone());
+            }
+
+            image.write_with_encoder(encoder).unwrap();
+
+            // image
+            //     .write_to(&mut Cursor::new(&mut dat), ImageFormat::Tiff)
+            //     .unwrap();
         }
         ImageType::Tga => {
             image

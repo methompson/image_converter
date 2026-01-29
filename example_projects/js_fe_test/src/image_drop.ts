@@ -1,6 +1,5 @@
 // import wasm_heif from "@saschazar/wasm-heif";
 
-import { getImageDimensions } from 'image_converter';
 import {
   sendToCompressionWorker,
   sendToDimensionsWorker,
